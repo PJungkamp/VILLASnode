@@ -62,11 +62,20 @@
     pkgsFor = system:
       import nixpkgs {
         inherit system;
-        overlays = [overlay];
+        overlays = [self.overlays.default];
       };
 
     # initialize nixpkgs for cross-compiling from `system` to `crossSystem`
-    crossPkgsFor = system: crossSystem: (pkgsFor system).pkgsCross.${crossSystem};
+    crossPkgsFor = system: crossSystem:
+      (import nixpkgs {
+        inherit system;
+        overlays = [
+          self.overlays.default
+          self.overlays.cross
+          self.overlays.minimal
+        ];
+      })
+      .pkgsCross.${crossSystem};
 
     # build villas and its dependencies for the specified `pkgs`
     packagesWith = pkgs: rec {
@@ -113,7 +122,16 @@
 
     # standard flake attribute allowing you to add the villas packages to your nixpkgs
     overlays = {
-      default = overlay;
+      default = final: prev: packagesWith final;
+      cross = final: prev: {
+        libre = prev.libre.overrideAttrs (old: {
+          nativeBuildInputs = old.nativeBuildInputs or [final.cmake];
+        });
+      };
+      minimal = final: prev: {
+        mosquitto = prev.mosquitto.override {systemd = final.systemdMinimal;};
+        rdma-core = prev.rdma-core.override {udev = final.systemdMinimal;};
+      };
     };
 
     # standard flake attribute for defining developer environments

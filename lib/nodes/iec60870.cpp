@@ -5,6 +5,9 @@
  * @license Apache 2.0
  *********************************************************************************/
 
+// std::optional tends to produce false positives of this war
+#pragma GCC diagnostic warning "-Wmaybe-uninitialized"
+
 #include <algorithm>
 
 #include <villas/node_compat.hpp>

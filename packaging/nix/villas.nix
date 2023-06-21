@@ -73,7 +73,10 @@ stdenv.mkDerivation {
   pname = "villas";
   outputs = ["out" "dev"];
   separateDebugInfo = true;
-  cmakeFlags = []
+  cmakeFlags =
+    [
+      "-DCMAKE_CXX_FLAGS_RELEASE=-Wno-error"
+    ]
     ++ lib.optionals (!withGpl) ["-DWITHOUT_GPL=ON"]
     ++ lib.optionals withFormatProtobuf ["-DCMAKE_FIND_ROOT_PATH=${protobufcBuildBuild}/bin"];
   postPatch = ''

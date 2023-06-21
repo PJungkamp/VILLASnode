@@ -2,7 +2,7 @@
   description = "a tool for connecting real-time power grid simulation equipment";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/release-23.05";
 
     common = {
       url = "github:VILLASframework/common";
@@ -71,7 +71,6 @@
         inherit system;
         overlays = [
           self.overlays.default
-          self.overlays.cross
           self.overlays.minimal
         ];
       })
@@ -123,11 +122,6 @@
     # standard flake attribute allowing you to add the villas packages to your nixpkgs
     overlays = {
       default = final: prev: packagesWith final;
-      cross = final: prev: {
-        libre = prev.libre.overrideAttrs (old: {
-          nativeBuildInputs = old.nativeBuildInputs or [final.cmake];
-        });
-      };
       minimal = final: prev: {
         mosquitto = prev.mosquitto.override {systemd = final.systemdMinimal;};
         rdma-core = prev.rdma-core.override {udev = final.systemdMinimal;};
